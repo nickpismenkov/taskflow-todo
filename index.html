@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskFlow — Clean & Minimalist Todo App</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#f5f3ff',
+                            100: '#ede9fe',
+                            200: '#ddd6fe',
+                            300: '#c4b5fd',
+                            400: '#a78bfa',
+                            500: '#8b5cf6',
+                            600: '#7c3aed',
+                            700: '#6d28d9',
+                            800: '#5b21b6',
+                            900: '#4c1d95',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .todo-item {
+            transition: all 0.2s ease-in-out;
+        }
+        .todo-item:hover .delete-btn {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 min-h-screen transition-colors duration-300">
+    <div class="max-w-md mx-auto px-4 py-12">
+        <!-- Header -->
+        <header class="flex justify-between items-center mb-8">
+            <div>
+                <h1 class="text-3xl font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
+                    <svg class="w-8 h-8 text-primary-600 dark:text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                    </svg>
+                    TaskFlow
+                </h1>
+                <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Get things done, one task at a time.</p>
+            </div>
+            
+            <!-- Dark Mode Toggle -->
+            <button id="theme-toggle" class="p-2.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm hover:bg-slate-100 dark:hover:bg-slate-700 transition-all focus:outline-none focus:ring-2 focus:ring-primary-500">
+                <!-- Sun Icon -->
+                <svg id="theme-toggle-light-icon" class="hidden w-5 h-5 text-amber-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464a1 1 0 10-1.414-1.414l.707.707a1 1 0 101.414-1.414l-.707-.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 100 2h1z" />
+                </svg>
+                <!-- Moon Icon -->
+                <svg id="theme-toggle-dark-icon" class="hidden w-5 h-5 text-slate-500 dark:text-slate-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
+                </svg>
+            </button>
+        </header>
+
+        <!-- Main Card -->
+        <main class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden transition-colors duration-300">
+            <!-- Input Form -->
+            <form id="todo-form" class="p-5 border-b border-slate-200 dark:border-slate-700">
+                <div class="flex gap-2">
+                    <input type="text" id="todo-input" required placeholder="Add a new task..." 
+                        class="flex-1 px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400 focus:bg-white dark:focus:bg-slate-900 transition-all text-sm">
+                    <button type="submit" 
+                        class="px-5 py-3 rounded-xl bg-primary-600 hover:bg-primary-700 dark:bg-primary-500 dark:hover:bg-primary-600 text-white font-semibold text-sm transition-all focus:outline-none focus:ring-2 focus:ring-primary-500 active:scale-95 flex items-center justify-center gap-1">
+                        Add
+                    </button>
+                </div>
+            </form>
+
+            <!-- Filters -->
+            <div class="flex justify-between items-center px-5 py-3.5 bg-slate-50/50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-500 dark:text-slate-400">
+                <div class="flex gap-1">
+                    <button id="filter-all" class="px-2.5 py-1.5 rounded-lg bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-white transition-all">All</button>
+                    <button id="filter-active" class="px-2.5 py-1.5 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-slate-800 dark:hover:text-white transition-all">Active</button>
+                    <button id="filter-completed" class="px-2.5 py-1.5 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-slate-800 dark:hover:text-white transition-all">Completed</button>
+                </div>
+                <button id="clear-completed" class="hover:text-red-500 transition-all">Clear Completed</button>
+            </div>
+
+            <!-- List -->
+            <ul id="todo-list" class="divide-y divide-slate-200 dark:divide-slate-700 max-h-[400px] overflow-y-auto">
+                <!-- Dynamic Items Go Here -->
+            </ul>
+
+            <!-- Footer Stats -->
+            <div class="px-5 py-4 bg-slate-50/30 dark:bg-slate-800/30 flex justify-between items-center text-xs text-slate-400 dark:text-slate-500 border-t border-slate-200 dark:border-slate-700">
+                <span id="items-left">0 items left</span>
+                <span id="completion-rate">0% completed</span>
+            </div>
+        </main>
+    </div>
+
+    <!-- JavaScript logic -->
+    <script>
+        // DOM Elements
+        const todoForm = document.getElementById('todo-form');
+        const todoInput = document.getElementById('todo-input');
+        const todoList = document.getElementById('todo-list');
+        const itemsLeft = document.getElementById('items-left');
+        const completionRate = document.getElementById('completion-rate');
+        const clearCompletedBtn = document.getElementById('clear-completed');
+        
+        const filterAll = document.getElementById('filter-all');
+        const filterActive = document.getElementById('filter-active');
+        const filterCompleted = document.getElementById('filter-completed');
+        
+        const themeToggle = document.getElementById('theme-toggle');
+        const themeToggleLightIcon = document.getElementById('theme-toggle-light-icon');
+        const themeToggleDarkIcon = document.getElementById('theme-toggle-dark-icon');
+
+        // State
+        let todos = JSON.parse(localStorage.getItem('todos')) || [
+            { id: 1, text: 'Welcome to TaskFlow! 👋', completed: false },
+            { id: 2, text: 'Tap the circle on the left to complete tasks', completed: false },
+            { id: 3, text: 'This app saves your tasks automatically to LocalStorage', completed: true }
+        ];
+        let currentFilter = 'all'; // 'all', 'active', 'completed'
+
+        // Theme Setup
+        if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+            themeToggleLightIcon.classList.remove('hidden');
+        } else {
+            document.documentElement.classList.remove('dark');
+            themeToggleDarkIcon.classList.remove('hidden');
+        }
+
+        // Theme Toggle Handler
+        themeToggle.addEventListener('click', function() {
+            themeToggleLightIcon.classList.toggle('hidden');
+            themeToggleDarkIcon.classList.toggle('hidden');
+
+            if (document.documentElement.classList.contains('dark')) {
+                document.documentElement.classList.remove('dark');
+                localStorage.setItem('color-theme', 'light');
+            } else {
+                document.documentElement.classList.add('dark');
+                localStorage.setItem('color-theme', 'dark');
+            }
+        });
+
+        // Save to LocalStorage
+        function saveTodos() {
+            localStorage.setItem('todos', JSON.stringify(todos));
+            updateStats();
+        }
+
+        // Update Stats
+        function updateStats() {
+            const activeCount = todos.filter(t => !t.completed).length;
+            const completedCount = todos.filter(t => t.completed).length;
+            const totalCount = todos.length;
+            
+            itemsLeft.textContent = `${activeCount} item${activeCount === 1 ? '' : 's'} left`;
+            
+            const rate = totalCount === 0 ? 0 : Math.round((completedCount / totalCount) * 100);
+            completionRate.textContent = `${rate}% completed`;
+        }
+
+        // Set active filter button UI
+        function updateFilterUI() {
+            [filterAll, filterActive, filterCompleted].forEach(btn => {
+                btn.classList.remove('bg-slate-200', 'dark:bg-slate-700', 'text-slate-800', 'white');
+                btn.classList.add('hover:bg-slate-200', 'dark:hover:bg-slate-700', 'hover:text-slate-800', 'dark:hover:text-white');
+            });
+
+            let activeBtn;
+            if (currentFilter === 'all') activeBtn = filterAll;
+            if (currentFilter === 'active') activeBtn = filterActive;
+            if (currentFilter === 'completed') activeBtn = filterCompleted;
+
+            activeBtn.classList.add('bg-slate-200', 'dark:bg-slate-700', 'text-slate-800', 'dark:text-white');
+            activeBtn.classList.remove('hover:bg-slate-200', 'dark:hover:bg-slate-700', 'hover:text-slate-800', 'dark:hover:text-white');
+        }
+
+        // Render Todos
+        function render() {
+            todoList.innerHTML = '';
+            
+            const filteredTodos = todos.filter(todo => {
+                if (currentFilter === 'active') return !todo.completed;
+                if (currentFilter === 'completed') return todo.completed;
+                return true;
+            });
+
+            if (filteredTodos.length === 0) {
+                todoList.innerHTML = `
+                    <div class="p-8 text-center text-slate-400 dark:text-slate-500">
+                        <svg class="w-12 h-12 mx-auto mb-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0a2 2 0 01-2 2H6a2 2 0 01-2-2m16 0V9a2 2 0 00-2-2H6a2 2 0 00-2 2v4.5m16 0L12 17l-8-4.5" />
+                        </svg>
+                        <p class="text-sm font-medium">No tasks found</p>
+                        <p class="text-xs mt-1">Add a new task or change the filter.</p>
+                    </div>
+                `;
+                updateStats();
+                return;
+            }
+
+            filteredTodos.forEach(todo => {
+                const li = document.createElement('li');
+                li.className = `todo-item flex items-center justify-between px-5 py-4 transition-all ${todo.completed ? 'opacity-60 bg-slate-50/40 dark:bg-slate-800/20' : ''}`;
+                
+                li.innerHTML = `
+                    <div class="flex items-center gap-3.5 flex-1 min-w-0">
+                        <button onclick="toggleTodo(${todo.id})" class="flex-shrink-0 w-5.5 h-5.5 rounded-full border-2 flex items-center justify-center transition-all ${
+                            todo.completed 
+                            ? 'bg-primary-500 border-primary-500 text-white' 
+                            : 'border-slate-300 dark:border-slate-600 hover:border-primary-500 dark:hover:border-primary-400'
+                        }" style="width: 22px; height: 22px;">
+                            ${todo.completed ? `
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
+                                </svg>
+                            ` : ''}
+                        </button>
+                        <span class="text-sm font-medium truncate ${todo.completed ? 'line-through text-slate-400 dark:text-slate-500' : 'text-slate-700 dark:text-slate-200'}">
+                            ${escapeHTML(todo.text)}
+                        </span>
+                    </div>
+                    <button onclick="deleteTodo(${todo.id})" class="delete-btn md:opacity-0 p-1.5 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all ml-2" title="Delete task">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                    </button>
+                `;
+                todoList.appendChild(li);
+            });
+
+            updateStats();
+        }
+
+        // Helper to escape HTML and prevent XSS
+        function escapeHTML(str) {
+            return str.replace(/[&<>'"]/g, 
+                tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
+            );
+        }
+
+        // Actions
+        window.toggleTodo = function(id) {
+            todos = todos.map(t => t.id === id ? { ...t, completed: !t.completed } : t);
+            saveTodos();
+            render();
+        };
+
+        window.deleteTodo = function(id) {
+            todos = todos.filter(t => t.id !== id);
+            saveTodos();
+            render();
+        };
+
+        // Form Submit
+        todoForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const text = todoInput.value.trim();
+            if (!text) return;
+
+            const newTodo = {
+                id: Date.now(),
+                text,
+                completed: false
+            };
+
+            todos.push(newTodo);
+            todoInput.value = '';
+            saveTodos();
+            render();
+        });
+
+        // Filters Event Listeners
+        filterAll.addEventListener('click', () => { currentFilter = 'all'; updateFilterUI(); render(); });
+        filterActive.addEventListener('click', () => { currentFilter = 'active'; updateFilterUI(); render(); });
+        filterCompleted.addEventListener('click', () => { currentFilter = 'completed'; updateFilterUI(); render(); });
+        
+        clearCompletedBtn.addEventListener('click', () => {
+            todos = todos.filter(t => !t.completed);
+            saveTodos();
+            render();
+        });
+
+        // Init
+        updateFilterUI();
+        render();
+    </script>
+</body>
+</html>
